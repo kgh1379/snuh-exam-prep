@@ -5,7 +5,7 @@ import re, glob, json, os, sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 VAULT_DIR = os.path.join(SCRIPT_DIR, "StudyVault")
-OUTPUT = os.path.join(SCRIPT_DIR, "flashcard.html")
+OUTPUT = os.path.join(SCRIPT_DIR, "index.html")
 
 CIRCLE_MAP = {"①": 1, "②": 2, "③": 3, "④": 4, "➃": 4, "ⓛ": 1}
 CIRCLE_CHARS = r"①②③④➃ⓛ"
