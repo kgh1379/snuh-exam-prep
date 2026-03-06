@@ -458,6 +458,53 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;
   background:#fff;top:3px;left:3px;transition:transform .3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .toggle.on::after{transform:translateX(22px)}
 
+/* ── Dashboard ── */
+.home-scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.dashboard{padding:0 16px 12px;display:flex;flex-direction:column;gap:12px}
+.dash-top{display:flex;align-items:center;gap:12px}
+.dday-badge{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;color:#fff;
+  white-space:nowrap}
+.dday-badge.urgent{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.dday-badge.soon{background:linear-gradient(135deg,#f39c12,#e67e22)}
+.dday-badge.normal{background:linear-gradient(135deg,var(--primary),#357abd)}
+.dash-date{font-size:12px;color:var(--muted);margin-left:auto}
+.dash-stats{display:flex;gap:14px;align-items:center}
+.progress-ring{flex-shrink:0}
+.progress-ring__bg{fill:none;stroke:var(--border);stroke-width:6}
+.progress-ring__fg{fill:none;stroke:var(--primary);stroke-width:6;stroke-linecap:round;
+  transition:stroke-dashoffset .6s ease;transform:rotate(-90deg);transform-origin:50% 50%}
+.dash-nums{flex:1;display:flex;flex-direction:column;gap:6px}
+.dash-num-row{display:flex;align-items:baseline;gap:6px}
+.dash-num-big{font-size:22px;font-weight:800;color:var(--text)}
+.dash-num-label{font-size:12px;color:var(--muted)}
+.today-card{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:14px;
+  padding:16px;color:#fff;cursor:pointer;transition:transform .15s,opacity .2s}
+.today-card:active{transform:scale(.97);opacity:.9}
+.today-card-title{font-size:13px;font-weight:600;opacity:.85;margin-bottom:4px}
+.today-card-main{font-size:16px;font-weight:700;margin-bottom:2px}
+.today-card-sub{font-size:12px;opacity:.7}
+.cta-banner{background:var(--primary-light);border:1px dashed var(--primary);border-radius:12px;
+  padding:16px;text-align:center;margin:0 16px 12px;cursor:pointer}
+.cta-banner-text{font-size:14px;color:var(--primary);font-weight:600}
+.cta-banner-sub{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* ── Round Dots ── */
+.round-dots{display:flex;gap:3px;margin-top:6px}
+.round-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.round-dot.done{background:var(--primary)}
+
+/* ── Section Card Progress Bar ── */
+.card-progress{height:3px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden}
+.card-progress-fill{height:100%;background:var(--primary);border-radius:2px;transition:width .3s}
+
+/* ── Settings Plan ── */
+.st-input-row{display:flex;align-items:center;gap:10px;padding:6px 0}
+.st-date-input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+  background:var(--option-bg);color:var(--text);font-size:14px;font-family:inherit}
+.st-btn-danger{padding:10px 18px;border-radius:10px;background:#e74c3c;color:#fff;
+  font-size:14px;font-weight:600;transition:opacity .2s;width:100%}
+.st-btn-danger:active{opacity:.8}
+
 /* ── Animations ── */
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .fade-in{animation:fadeIn .3s ease}
@@ -469,14 +516,17 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;
 
 <!-- ═══ HOME ═══ -->
 <div id="v-home" class="view active">
-  <div class="home-top">
-    <h1>StudyVault</h1>
-    <p>플래시카드로 빠르게 반복 학습</p>
+  <div class="home-scroll">
+    <div class="home-top">
+      <h1>StudyVault</h1>
+      <p>플래시카드로 빠르게 반복 학습</p>
+    </div>
+    <div id="dashboard-area"></div>
+    <button class="all-btn" onclick="startAll()">
+      전체 문제<span class="all-count" id="total-count"></span>
+    </button>
+    <div class="grid" id="section-grid"></div>
   </div>
-  <button class="all-btn" onclick="startAll()">
-    전체 문제<span class="all-count" id="total-count"></span>
-  </button>
-  <div class="grid" id="section-grid"></div>
   <div class="nav-bar">
     <button class="nav-item active" onclick="showView('home')"><span>📋</span>홈</button>
     <button class="nav-item" onclick="showView('bookmarks')"><span>⭐</span>북마크</button>
@@ -532,6 +582,16 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;
   </div>
   <div class="settings-scroll">
     <div class="st-group">
+      <div class="st-label">시험일</div>
+      <div class="st-input-row">
+        <input type="date" class="st-date-input" id="st-deadline" onchange="setDeadline(this.value)">
+      </div>
+    </div>
+    <div class="st-group">
+      <div class="st-label">목표 회독수</div>
+      <div class="st-chips" id="st-rounds"></div>
+    </div>
+    <div class="st-group">
       <div class="st-label">문제 표시 시간</div>
       <div class="st-chips" id="st-qtime"></div>
     </div>
@@ -548,6 +608,10 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;
         <span class="toggle-label">셔플 모드</span>
         <button class="toggle" id="tgl-shuffle" onclick="toggleShuffle()"></button>
       </div>
+    </div>
+    <div class="st-group">
+      <div class="st-label">진행 기록</div>
+      <button class="st-btn-danger" onclick="resetProgress()">진행 기록 초기화</button>
     </div>
   </div>
   <div class="nav-bar">
@@ -571,10 +635,14 @@ let settings = loadJSON('sv_settings', {
 let bookmarks = new Set(loadJSON('sv_bookmarks', []));
 let progress = loadJSON('sv_progress', {});
 
+let plan = loadJSON('sv_plan', { deadline: '', targetRounds: 3 });
+let rounds = loadJSON('sv_rounds', {});
+let daily = loadJSON('sv_daily', {});
+
 let player = {
   questions: [], idx: 0, phase: 'question', playing: true,
   sectionId: null, sectionName: '', timer: null, timerStart: 0,
-  timerDuration: 0, paused: false, pauseRemaining: 0
+  timerDuration: 0, paused: false, pauseRemaining: 0, sessionStart: 0
 };
 
 // ── Persistence ──
@@ -585,6 +653,9 @@ function loadJSON(key, def) {
 function saveSettings() { localStorage.setItem('sv_settings', JSON.stringify(settings)); }
 function saveBookmarks() { localStorage.setItem('sv_bookmarks', JSON.stringify([...bookmarks])); }
 function saveProgress() { localStorage.setItem('sv_progress', JSON.stringify(progress)); }
+function savePlan() { localStorage.setItem('sv_plan', JSON.stringify(plan)); }
+function saveRounds() { localStorage.setItem('sv_rounds', JSON.stringify(rounds)); }
+function saveDaily() { localStorage.setItem('sv_daily', JSON.stringify(daily)); }
 
 // ── Theme ──
 function applyTheme() {
@@ -610,18 +681,129 @@ function showView(name) {
   if (name === 'home') renderHome();
 }
 
+// ── Study Plan Algorithm ──
+function generatePlan() {
+  if (!plan.deadline) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dl = new Date(plan.deadline + 'T00:00:00');
+  const daysLeft = Math.max(1, Math.ceil((dl - today) / 86400000));
+
+  const totalQ = ALL_Q.length;
+  const secPerQ = settings.questionTime + settings.answerTime;
+  const totalSec = totalQ * secPerQ * plan.targetRounds;
+
+  let studiedSec = 0;
+  Object.values(daily).forEach(d => { studiedSec += d.seconds || 0; });
+
+  const remainSec = Math.max(0, totalSec - studiedSec);
+  const dailySec = remainSec / daysLeft;
+
+  let completedRounds = 0;
+  const totalTarget = SECTIONS.length * plan.targetRounds;
+  SECTIONS.forEach(s => {
+    completedRounds += Math.min(rounds[s.id] || 0, plan.targetRounds);
+  });
+  const overallPct = totalTarget > 0 ? Math.round(completedRounds / totalTarget * 100) : 0;
+
+  // Build today's task queue: iterate rounds then sections
+  let todayTasks = [];
+  let todayEst = 0;
+  for (let r = 1; r <= plan.targetRounds; r++) {
+    for (const s of SECTIONS) {
+      if ((rounds[s.id] || 0) >= r) continue;
+      const sectionSec = s.count * secPerQ;
+      todayTasks.push({ round: r, section: s, estMin: Math.ceil(sectionSec / 60) });
+      todayEst += sectionSec;
+      if (todayEst >= dailySec && todayTasks.length > 0) break;
+    }
+    if (todayEst >= dailySec) break;
+  }
+
+  return {
+    daysLeft, dailyMin: Math.ceil(dailySec / 60),
+    remainMin: Math.ceil(remainSec / 60), overallPct,
+    todayTasks, todayEstMin: Math.ceil(todayEst / 60)
+  };
+}
+
+// ── Dashboard ──
+function renderDashboard() {
+  const area = document.getElementById('dashboard-area');
+  if (!plan.deadline) {
+    area.innerHTML = '<div class="cta-banner" onclick="showView(\'settings\')">' +
+      '<div class="cta-banner-text">시험일을 설정하세요</div>' +
+      '<div class="cta-banner-sub">학습 계획표가 자동으로 생성됩니다</div></div>';
+    return;
+  }
+  const p = generatePlan();
+  if (!p) { area.innerHTML = ''; return; }
+
+  const ddayClass = p.daysLeft <= 7 ? 'urgent' : p.daysLeft <= 30 ? 'soon' : 'normal';
+  const ddayText = p.daysLeft <= 0 ? 'D-Day' : 'D-' + p.daysLeft;
+
+  const radius = 36, circ = 2 * Math.PI * radius;
+  const offset = circ * (1 - p.overallPct / 100);
+
+  let html = '<div class="dashboard">';
+  // D-day row
+  html += '<div class="dash-top">';
+  html += '<span class="dday-badge ' + ddayClass + '">' + ddayText + '</span>';
+  html += '<span class="dash-date">' + plan.deadline + '</span>';
+  html += '</div>';
+  // Stats row: SVG ring + numbers
+  html += '<div class="dash-stats">';
+  html += '<svg class="progress-ring" width="84" height="84">';
+  html += '<circle class="progress-ring__bg" cx="42" cy="42" r="' + radius + '"/>';
+  html += '<circle class="progress-ring__fg" cx="42" cy="42" r="' + radius + '" ' +
+    'stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + offset.toFixed(1) + '"/>';
+  html += '<text x="42" y="42" text-anchor="middle" dominant-baseline="central" ' +
+    'fill="var(--text)" font-size="16" font-weight="800">' + p.overallPct + '%</text>';
+  html += '</svg>';
+  html += '<div class="dash-nums">';
+  html += '<div class="dash-num-row"><span class="dash-num-big">' + p.dailyMin + '분</span>' +
+    '<span class="dash-num-label">오늘 필요</span></div>';
+  html += '<div class="dash-num-row"><span class="dash-num-big">' + p.remainMin + '분</span>' +
+    '<span class="dash-num-label">남은 총 시간</span></div>';
+  html += '</div></div>';
+  // Today's study card
+  if (p.todayTasks.length > 0) {
+    const first = p.todayTasks[0];
+    html += '<div class="today-card" onclick="startSection(' + first.section.id + ')">';
+    html += '<div class="today-card-title">오늘의 학습</div>';
+    html += '<div class="today-card-main">' + esc(first.section.name) +
+      (p.todayTasks.length > 1 ? ' 외 ' + (p.todayTasks.length - 1) + '개' : '') + '</div>';
+    html += '<div class="today-card-sub">' + first.round + '회독 · 약 ' + p.todayEstMin + '분</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  area.innerHTML = html;
+}
+
 // ── Home ──
 function renderHome() {
+  renderDashboard();
   const grid = document.getElementById('section-grid');
   document.getElementById('total-count').textContent = '(' + ALL_Q.length + '문항)';
+  const target = plan.targetRounds || 3;
   grid.innerHTML = SECTIONS.map(s => {
     const done = progress[s.id] || 0;
+    const r = rounds[s.id] || 0;
+    // Round dots
+    let dots = '';
+    for (let i = 0; i < target; i++) {
+      dots += '<span class="round-dot' + (i < r ? ' done' : '') + '"></span>';
+    }
+    // Progress bar percentage
+    const pct = s.count > 0 ? Math.round(done / s.count * 100) : 0;
     return '<div class="card" onclick="startSection(' + s.id + ')">' +
       '<div class="card-num">' + String(s.id).padStart(2,'0') + '</div>' +
       '<div class="card-name">' + esc(s.name) + '</div>' +
       '<div class="card-count">' + s.count + '문항' +
         (done > 0 ? ' · 진행 ' + done + '/' + s.count : '') +
-      '</div></div>';
+      '</div>' +
+      '<div class="round-dots">' + dots + '</div>' +
+      '<div class="card-progress"><div class="card-progress-fill" style="width:' + pct + '%"></div></div>' +
+      '</div>';
   }).join('');
 }
 
@@ -637,6 +819,7 @@ function startSection(sid) {
   player.phase = 'question';
   player.playing = true;
   player.paused = false;
+  player.sessionStart = Date.now();
   showView('player');
   document.getElementById('done-overlay').style.display = 'none';
   renderCard();
@@ -651,6 +834,7 @@ function startAll() {
   player.phase = 'question';
   player.playing = true;
   player.paused = false;
+  player.sessionStart = Date.now();
   showView('player');
   document.getElementById('done-overlay').style.display = 'none';
   renderCard();
@@ -766,6 +950,21 @@ function goNext() {
 }
 
 function showDone() {
+  // Update round count for section (not for 'all' or bookmark plays)
+  if (player.sectionId !== 'all' && !String(player.sectionId).startsWith('bm_')) {
+    rounds[player.sectionId] = (rounds[player.sectionId] || 0) + 1;
+    saveRounds();
+  }
+  // Update daily study record
+  const today = new Date().toISOString().split('T')[0];
+  if (!daily[today]) daily[today] = { questions: 0, seconds: 0 };
+  daily[today].questions += player.questions.length;
+  if (player.sessionStart) {
+    daily[today].seconds += Math.round((Date.now() - player.sessionStart) / 1000);
+    player.sessionStart = 0;
+  }
+  saveDaily();
+
   document.getElementById('done-msg').textContent =
     player.questions.length + '문항 학습 완료!';
   document.getElementById('done-overlay').style.display = 'flex';
@@ -914,12 +1113,31 @@ function clearAllBookmarks() {
 
 // ── Settings View ──
 function renderSettings() {
+  document.getElementById('st-deadline').value = plan.deadline || '';
+  renderChips('st-rounds', [1,2,3,4,5], plan.targetRounds, '회독',
+    v => { plan.targetRounds = v; savePlan(); renderSettings(); });
   renderChips('st-qtime', [5,10,15,20], settings.questionTime, '초',
     v => { settings.questionTime = v; saveSettings(); renderSettings(); });
   renderChips('st-atime', [1,2,3], settings.answerTime, '초',
     v => { settings.answerTime = v; saveSettings(); renderSettings(); });
   document.getElementById('tgl-dark').classList.toggle('on', settings.dark);
   document.getElementById('tgl-shuffle').classList.toggle('on', settings.shuffle);
+}
+
+function setDeadline(val) {
+  plan.deadline = val;
+  savePlan();
+}
+
+function resetProgress() {
+  if (!confirm('모든 진행 기록을 초기화할까요?\n(회독 수, 일별 학습 기록 포함)')) return;
+  rounds = {};
+  daily = {};
+  progress = {};
+  saveRounds();
+  saveDaily();
+  saveProgress();
+  renderSettings();
 }
 
 function renderChips(containerId, values, current, suffix, onChange) {
